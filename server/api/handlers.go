@@ -3,7 +3,8 @@ package api
 import (
 	"context"
 	"log"
-	. "railyatri/BookingStub/Booking"
+
+	. "github.com/iamengg/railyatri/bookingStub/Booking"
 )
 
 type BookingHandler struct {

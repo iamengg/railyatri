@@ -5,8 +5,8 @@ import (
 	"net"
 	"sync"
 
-	booking "github.com/iamengg/railyatri/BookingStub/Booking"
-	handler "github.com/iamengg/railyatri/server/api/handlers"
+	booking "github.com/iamengg/railyatri/bookingStub/Booking"
+	handler "github.com/iamengg/railyatri/server/api"
 
 	"google.golang.org/grpc"
 )

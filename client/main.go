@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"log"
-	booking "github.com/iamengg/railyatri/BookingStub/Booking"
+
+	booking "github.com/iamengg/railyatri/bookingStub/Booking"
 
 	//handler "railyatri/server/api/handlers"
 
@@ -24,7 +25,7 @@ func sendOverGrpc() {
 	defer conn.Close()
 
 	client := booking.NewBookingServiceClient(conn)
-	name, err := client.Get(context.Background(), filePath)
+	name, err := client.Get(context.Background())
 	if err != nil {
 		log.Println(err)
 	}
