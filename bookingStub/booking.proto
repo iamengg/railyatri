@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package Booking;
+
+option go_package = ".;Booking";
+
+service BookingService {
+    rpc CreateBooking(BookingRequest) returns (BookingResponse) {}
+    rpc GetUserBookings(User) returns (BookingsResponse) {}
+    
+    //Returns bookings for both sections
+    rpc GetSectionBookings(Sections) returns (BookingsResponse) {}
+    
+    //can update user details only 
+    rpc UpdateBooking(User) returns (BookingResponse) {}
+    rpc DeleteBookings(User) returns (BookingResponse) {}
+}
+
+enum Section {
+    A  = 0;
+    B = 1;
+}
+
+message Sections{
+    //value can be either of A or B 
+    Section section = 1;
+}
+
+message User{
+    string firstName = 1;
+    string lastName = 2;    
+    string email = 3;
+}
+
+message Travel{
+    string from = 1;
+    string to = 2;
+    double cost = 3;
+}
+
+message BookingRequest {        
+    User user = 1; 
+    Travel travel = 2;   
+}
+
+message BookingResponse {
+    int64 bookingId = 1;
+    int32 seatNumber = 2;
+}
+
+message BookingsResponse{
+    repeated BookingResponse bookings = 1;
+}
+
