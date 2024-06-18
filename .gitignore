@@ -1,0 +1,5 @@
+# .gitignore 
+
+# exclude executable files
+server/bin/
+client/bin/

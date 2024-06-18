@@ -6,14 +6,20 @@ option go_package = ".;Booking";
 
 service BookingService {
     rpc CreateBooking(BookingRequest) returns (BookingResponse) {}
-    rpc GetUserBookings(User) returns (BookingsResponse) {}
+    rpc GetUserBookings(BookingRequest) returns (BookingsResponse) {}
     
-    //Returns bookings for both sections
-    rpc GetSectionBookings(Sections) returns (BookingsResponse) {}
+    // //Returns bookings for both sections
+    // rpc GetSectionBookings(Sections) returns (BookingsResponse) {}
     
-    //can update user details only 
-    rpc UpdateBooking(User) returns (BookingResponse) {}
-    rpc DeleteBookings(User) returns (BookingResponse) {}
+    // //can update user details only 
+    // rpc UpdateBooking(User) returns (BookingResponse) {}
+    // rpc DeleteBookings(User) returns (BookingResponse) {}
+      //Returns bookings for both sections
+      rpc GetSectionBookings(BookingRequest) returns (BookingsResponse) {}
+    
+      //can update user details only 
+      rpc UpdateBooking(BookingRequest) returns (BookingResponse) {}
+      rpc DeleteBookings(BookingRequest) returns (BookingResponse) {}
 }
 
 enum Section {
@@ -30,6 +36,7 @@ message User{
     string firstName = 1;
     string lastName = 2;    
     string email = 3;
+    int64 id = 4;
 }
 
 message Travel{
@@ -38,9 +45,19 @@ message Travel{
     double cost = 3;
 }
 
+
+
+//1, "1234", "London","Berlin",time.Date(),0
 message BookingRequest {        
-    User user = 1; 
-    Travel travel = 2;   
+    // User user = 1; 
+    // Travel travel = 2;   
+    int64 UserId  =1;
+    int32 TrainNum = 2;
+    string SourceStation = 3;
+    string DestinationStation=4;
+    string date = 5;
+    Sections section = 6;
+    
 }
 
 message BookingResponse {

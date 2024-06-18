@@ -4,45 +4,67 @@ import (
 	"context"
 	"log"
 
-	. "github.com/iamengg/railyatri/bookingStub/Booking"
+	. "github.com/iamengg/railyatri/bookingStub"
+	db "github.com/iamengg/railyatri/server/database"
 )
 
-type BookingHandler struct {
+type BookingHandler struct{}
+
+func NewBookingServerHandler() *BookingHandler {
+	return &BookingHandler{}
 }
 
-type BookingServiceServer interface {
-	CreateBooking(context.Context, *BookingRequest) (*BookingResponse, error)
-	GetUserBookings(context.Context, *User) (*BookingsResponse, error)
-	//Returns bookings for both sections
-	GetSectionBookings(context.Context, *Sections) (*BookingsResponse, error)
-	//can update user details only
-	UpdateBooking(context.Context, *User) (*BookingResponse, error)
-	DeleteBookings(context.Context, *User) (*BookingResponse, error)
+func (b *BookingHandler) CreateBooking(c context.Context, r *BookingRequest) (*BookingResponse, error) {
+	log.Println("CreateBooking Request is ", r)
+	bookingId, SeatNum, err := db.CreateBooking(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+
+	return &BookingResponse{BookingId: int64(bookingId), SeatNumber: int32(SeatNum)}, err
 }
 
-func (b *BookingHandler) CreateBooking(context.Context, *BookingRequest) (*BookingResponse, error) {
-	log.Println("Handler CreateBooking")
-	return nil, nil
-}
-
-func (b *BookingHandler) GetUserBookings(context.Context, *User) (*BookingsResponse, error) {
-	log.Println("Handler GetUserBookings")
+// return []{bookingIds, seatNumber for bookingId}
+func (b *BookingHandler) GetUserBookings(c context.Context, r *BookingRequest) (*BookingsResponse, error) {
+	bookingIdSeatNumbers, err := db.GetUserBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+	if err != nil {
+		log.Printf(err.Error())
+		return nil, err
+	}
+	log.Println(bookingIdSeatNumbers)
 	return nil, nil
 }
 
 // Returns bookings for both sections
-func (b *BookingHandler) GetSectionBookings(context.Context, *Sections) (*BookingsResponse, error) {
+func (b *BookingHandler) GetSectionBookings(c context.Context, r *BookingRequest) (*BookingsResponse, error) {
 	log.Println("Handler GetSectionBookings")
+
+	bookingIdSeatNumbers, err := db.GetSectionBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+	if err != nil {
+		log.Printf(err.Error())
+		return nil, err
+	}
+	log.Println(bookingIdSeatNumbers)
+
+	return nil, nil
+}
+
+// Delete users booking for Date, from given source to destination
+func (b *BookingHandler) DeleteBookings(c context.Context, r *BookingRequest) (*BookingResponse, error) {
+
+	err := db.DeleteUserBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+	if err != nil {
+		log.Printf(err.Error())
+		return nil, err
+	}
+
 	return nil, nil
 }
 
 // can update user details only
-func (b *BookingHandler) UpdateBooking(context.Context, *User) (*BookingResponse, error) {
-	log.Println("Handler UpdateBooking")
-	return nil, nil
-}
+func (b *BookingHandler) UpdateBooking(c context.Context, r *BookingRequest) (*BookingResponse, error) {
+	err := db.UpdateUserBooking(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+	if err != nil {
+		log.Printf(err.Error())
+		return nil, err
+	}
 
-func (b *BookingHandler) DeleteBookings(context.Context, *User) (*BookingResponse, error) {
-	log.Println("Handler DeleteBookings")
 	return nil, nil
 }

@@ -93,6 +93,7 @@ type User struct {
 	FirstName            string   `protobuf:"bytes,1,opt,name=firstName,proto3" json:"firstName,omitempty"`
 	LastName             string   `protobuf:"bytes,2,opt,name=lastName,proto3" json:"lastName,omitempty"`
 	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Id                   int64    `protobuf:"varint,4,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -142,6 +143,13 @@ func (m *User) GetEmail() string {
 		return m.Email
 	}
 	return ""
+}
+
+func (m *User) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
 }
 
 type Travel struct {
@@ -199,12 +207,19 @@ func (m *Travel) GetCost() float64 {
 	return 0
 }
 
+//1, "1234", "London","Berlin",time.Date(),0
 type BookingRequest struct {
-	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Travel               *Travel  `protobuf:"bytes,2,opt,name=travel,proto3" json:"travel,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	// User user = 1;
+	// Travel travel = 2;
+	UserId               int64     `protobuf:"varint,1,opt,name=UserId,proto3" json:"UserId,omitempty"`
+	TrainNum             int32     `protobuf:"varint,2,opt,name=TrainNum,proto3" json:"TrainNum,omitempty"`
+	SourceStation        string    `protobuf:"bytes,3,opt,name=SourceStation,proto3" json:"SourceStation,omitempty"`
+	DestinationStation   string    `protobuf:"bytes,4,opt,name=DestinationStation,proto3" json:"DestinationStation,omitempty"`
+	Date                 string    `protobuf:"bytes,5,opt,name=date,proto3" json:"date,omitempty"`
+	Section              *Sections `protobuf:"bytes,6,opt,name=section,proto3" json:"section,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
 }
 
 func (m *BookingRequest) Reset()         { *m = BookingRequest{} }
@@ -232,16 +247,44 @@ func (m *BookingRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BookingRequest proto.InternalMessageInfo
 
-func (m *BookingRequest) GetUser() *User {
+func (m *BookingRequest) GetUserId() int64 {
 	if m != nil {
-		return m.User
+		return m.UserId
 	}
-	return nil
+	return 0
 }
 
-func (m *BookingRequest) GetTravel() *Travel {
+func (m *BookingRequest) GetTrainNum() int32 {
 	if m != nil {
-		return m.Travel
+		return m.TrainNum
+	}
+	return 0
+}
+
+func (m *BookingRequest) GetSourceStation() string {
+	if m != nil {
+		return m.SourceStation
+	}
+	return ""
+}
+
+func (m *BookingRequest) GetDestinationStation() string {
+	if m != nil {
+		return m.DestinationStation
+	}
+	return ""
+}
+
+func (m *BookingRequest) GetDate() string {
+	if m != nil {
+		return m.Date
+	}
+	return ""
+}
+
+func (m *BookingRequest) GetSection() *Sections {
+	if m != nil {
+		return m.Section
 	}
 	return nil
 }
@@ -345,34 +388,36 @@ func init() {
 func init() { proto.RegisterFile("bookingStub/booking.proto", fileDescriptor_d9eaade48d932940) }
 
 var fileDescriptor_d9eaade48d932940 = []byte{
-	// 417 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x93, 0xcf, 0x8b, 0xd3, 0x40,
-	0x14, 0xc7, 0x37, 0xe9, 0xef, 0x17, 0x9a, 0xc6, 0x87, 0xb0, 0xd9, 0x22, 0xb2, 0xe6, 0xe2, 0xb2,
-	0x87, 0x08, 0x51, 0x3c, 0xb8, 0x08, 0x5a, 0x0b, 0xab, 0x97, 0x15, 0xa6, 0xae, 0x07, 0xf1, 0x92,
-	0xb4, 0xaf, 0x12, 0x4c, 0x3a, 0x75, 0x66, 0xd2, 0xbf, 0xd4, 0x3f, 0x48, 0x32, 0x99, 0x4e, 0x6b,
-	0xc4, 0xc2, 0x9e, 0xf2, 0x7e, 0x7e, 0xde, 0x7b, 0xdf, 0x24, 0x70, 0x91, 0x71, 0xfe, 0x33, 0xdf,
-	0xfc, 0x58, 0xa8, 0x2a, 0x7b, 0x61, 0xec, 0x78, 0x2b, 0xb8, 0xe2, 0x38, 0x98, 0x35, 0x6e, 0xf4,
-	0x1a, 0x86, 0x0b, 0x5a, 0xaa, 0x9c, 0x6f, 0x24, 0x5e, 0xc3, 0x40, 0x36, 0x76, 0xe8, 0x5c, 0x3a,
-	0x57, 0x7e, 0x12, 0xc4, 0xa6, 0x2c, 0x36, 0x35, 0x6c, 0x5f, 0x10, 0x7d, 0x85, 0xee, 0xbd, 0x24,
-	0x81, 0x4f, 0x60, 0xb4, 0xce, 0x85, 0x54, 0x77, 0x69, 0x49, 0xba, 0x6b, 0xc4, 0x0e, 0x01, 0x9c,
-	0xc2, 0xb0, 0x48, 0x4d, 0xd2, 0xd5, 0x49, 0xeb, 0xe3, 0x63, 0xe8, 0x51, 0x99, 0xe6, 0x45, 0xd8,
-	0xd1, 0x89, 0xc6, 0x89, 0xde, 0x41, 0xff, 0x8b, 0x48, 0x77, 0x54, 0x20, 0x42, 0x77, 0x2d, 0x78,
-	0x69, 0xa0, 0xda, 0x46, 0x1f, 0x5c, 0xc5, 0x0d, 0xc9, 0x55, 0xbc, 0xae, 0x59, 0x72, 0xa9, 0x34,
-	0xc2, 0x61, 0xda, 0x8e, 0xbe, 0x83, 0x6f, 0xb6, 0x66, 0xf4, 0xab, 0x22, 0xa9, 0xf0, 0x19, 0x74,
-	0x2b, 0x49, 0x42, 0x93, 0xbc, 0x64, 0x6c, 0x8f, 0xaa, 0x0f, 0x60, 0x3a, 0x85, 0xcf, 0xa1, 0xaf,
-	0xf4, 0x58, 0x0d, 0xf7, 0x92, 0x89, 0x2d, 0x6a, 0xb6, 0x61, 0x26, 0x1d, 0x7d, 0x86, 0x89, 0xa5,
-	0xcb, 0x2d, 0xdf, 0x48, 0xaa, 0x25, 0x30, 0xe2, 0x7e, 0x5a, 0xe9, 0x19, 0x1d, 0x76, 0x08, 0xe0,
-	0x53, 0x00, 0x49, 0xa9, 0xba, 0xab, 0xca, 0x8c, 0x84, 0xa6, 0xf7, 0xd8, 0x51, 0x24, 0xfa, 0x08,
-	0x81, 0x01, 0x4a, 0x4b, 0x7c, 0x05, 0x43, 0x03, 0x90, 0xa1, 0x73, 0xd9, 0xb9, 0xf2, 0x92, 0xd0,
-	0xee, 0xd3, 0x9a, 0xce, 0x6c, 0xe5, 0xf5, 0x39, 0x0c, 0xcc, 0x6b, 0xc2, 0x1e, 0x38, 0xef, 0x83,
-	0xb3, 0xfa, 0x31, 0x0b, 0x9c, 0xe4, 0xb7, 0x6b, 0x25, 0x59, 0x90, 0xd8, 0xe5, 0x4b, 0xc2, 0x39,
-	0x8c, 0x3f, 0x08, 0x4a, 0x15, 0x99, 0x38, 0x9e, 0xff, 0x3b, 0x40, 0x8b, 0x37, 0xfd, 0xef, 0xe4,
-	0xe8, 0x0c, 0xdf, 0xc2, 0xe4, 0x96, 0x54, 0x2d, 0xe3, 0xfe, 0x04, 0xfc, 0x5b, 0xdd, 0xe9, 0x45,
-	0xbb, 0x5b, 0x1e, 0xb5, 0xcf, 0x01, 0x6f, 0x49, 0x99, 0x9d, 0x2d, 0xe1, 0x51, 0xfb, 0xa3, 0x93,
-	0xa7, 0x29, 0x6f, 0x60, 0x7c, 0xbf, 0x5d, 0x1d, 0x9d, 0xd2, 0x5a, 0xe1, 0xd4, 0x01, 0x37, 0xe0,
-	0xcf, 0xa9, 0x20, 0xdb, 0x2b, 0x1f, 0xd0, 0x3c, 0xf3, 0xbe, 0x8d, 0xe2, 0x1b, 0x13, 0xce, 0xfa,
-	0xfa, 0xbf, 0x7a, 0xf9, 0x27, 0x00, 0x00, 0xff, 0xff, 0x71, 0xd0, 0x9a, 0x21, 0x74, 0x03, 0x00,
-	0x00,
+	// 460 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
+	0x10, 0xad, 0x9d, 0xef, 0x89, 0x92, 0x86, 0x11, 0xa2, 0x6e, 0x85, 0x50, 0x64, 0x71, 0x88, 0x8a,
+	0x64, 0xa4, 0x80, 0xb8, 0x70, 0x81, 0x10, 0x14, 0xe0, 0x10, 0x24, 0xbb, 0xbd, 0x70, 0xdb, 0xc4,
+	0x13, 0xb4, 0x22, 0xf6, 0x86, 0xdd, 0x75, 0xff, 0x2c, 0x7f, 0x84, 0x23, 0xda, 0xf5, 0x66, 0x53,
+	0x02, 0xbd, 0xb4, 0x27, 0xcf, 0xc7, 0xf3, 0x9b, 0xf7, 0xfc, 0x24, 0xc3, 0xf9, 0x4a, 0x88, 0x1f,
+	0xbc, 0xfc, 0x9e, 0xe9, 0x6a, 0xf5, 0xd2, 0xd5, 0xc9, 0x4e, 0x0a, 0x2d, 0xb0, 0x33, 0xab, 0xdb,
+	0xf8, 0x0d, 0x74, 0x33, 0x5a, 0x6b, 0x2e, 0x4a, 0x85, 0x97, 0xd0, 0x51, 0x75, 0x1d, 0x05, 0xe3,
+	0x60, 0x32, 0x9c, 0x8e, 0x12, 0x07, 0x4b, 0x1c, 0x26, 0xdd, 0x03, 0xe2, 0x0d, 0x34, 0xaf, 0x15,
+	0x49, 0x7c, 0x0a, 0xbd, 0x0d, 0x97, 0x4a, 0x2f, 0x59, 0x41, 0xf6, 0xad, 0x5e, 0x7a, 0x18, 0xe0,
+	0x05, 0x74, 0xb7, 0xcc, 0x2d, 0x43, 0xbb, 0xf4, 0x3d, 0x3e, 0x86, 0x16, 0x15, 0x8c, 0x6f, 0xa3,
+	0x86, 0x5d, 0xd4, 0x0d, 0x0e, 0x21, 0xe4, 0x79, 0xd4, 0x1c, 0x07, 0x93, 0x46, 0x1a, 0xf2, 0x3c,
+	0x7e, 0x07, 0xed, 0x2b, 0xc9, 0x6e, 0x68, 0x8b, 0x08, 0xcd, 0x8d, 0x14, 0x85, 0x3b, 0x62, 0x6b,
+	0x83, 0xd6, 0xc2, 0x31, 0x87, 0x5a, 0x18, 0xcc, 0x5a, 0x28, 0x6d, 0x29, 0x83, 0xd4, 0xd6, 0xf1,
+	0xaf, 0x00, 0x86, 0xce, 0x46, 0x4a, 0x3f, 0x2b, 0x52, 0x1a, 0x9f, 0x40, 0xdb, 0x88, 0xff, 0x9c,
+	0x5b, 0xb2, 0x46, 0xea, 0x3a, 0x23, 0xf7, 0x4a, 0x32, 0x5e, 0x2e, 0xab, 0xc2, 0x92, 0xb6, 0x52,
+	0xdf, 0xe3, 0x73, 0x18, 0x64, 0xa2, 0x92, 0x6b, 0xca, 0x34, 0xb3, 0x9f, 0xa8, 0x96, 0xfd, 0xf7,
+	0x10, 0x13, 0xc0, 0x39, 0x29, 0xcd, 0x4b, 0xdb, 0xee, 0xa1, 0x4d, 0x0b, 0xfd, 0xcf, 0xc6, 0x08,
+	0xce, 0x99, 0xa6, 0xa8, 0x55, 0x9b, 0x32, 0x35, 0xbe, 0x38, 0xc4, 0xd0, 0x1e, 0x07, 0x93, 0xfe,
+	0xf4, 0xd1, 0x71, 0x0c, 0xea, 0x90, 0xc3, 0x57, 0x38, 0xf5, 0xe6, 0xd4, 0x4e, 0x94, 0x8a, 0x4c,
+	0x24, 0x2e, 0x6c, 0x6f, 0xf0, 0x30, 0xc0, 0x67, 0x00, 0x8a, 0x98, 0x5e, 0x56, 0xc5, 0x8a, 0xa4,
+	0x73, 0x79, 0x6b, 0x12, 0x7f, 0x82, 0x91, 0x23, 0x54, 0x9e, 0xf1, 0x35, 0x74, 0x1d, 0x81, 0x8a,
+	0x82, 0x71, 0x63, 0xd2, 0x9f, 0x46, 0x5e, 0xd2, 0xd1, 0xf5, 0xd4, 0x23, 0x2f, 0xcf, 0xa0, 0xe3,
+	0xf4, 0x62, 0x0b, 0x82, 0xf7, 0xa3, 0x13, 0xf3, 0x98, 0x8d, 0x82, 0xe9, 0xef, 0xd0, 0x27, 0x92,
+	0x91, 0xbc, 0xe1, 0x6b, 0xc2, 0x39, 0x0c, 0x3e, 0x48, 0x62, 0x9a, 0xdc, 0x1c, 0xcf, 0xfe, 0x3d,
+	0x60, 0xb3, 0xbb, 0xb8, 0xf3, 0x72, 0x7c, 0x82, 0x0b, 0x38, 0x5d, 0x90, 0x36, 0x61, 0xee, 0x2d,
+	0xdc, 0xcd, 0x73, 0x7e, 0xbc, 0x50, 0xb7, 0x88, 0xbe, 0x00, 0x2e, 0x48, 0x3b, 0xf5, 0x0f, 0xe4,
+	0x9a, 0xc3, 0xe0, 0x7a, 0x97, 0x3f, 0xd4, 0xda, 0x47, 0x18, 0xce, 0x69, 0x4b, 0x9e, 0x45, 0xdd,
+	0x8b, 0x66, 0xd6, 0xff, 0xd6, 0x4b, 0xde, 0xba, 0xf1, 0xaa, 0x6d, 0xff, 0x05, 0xaf, 0xfe, 0x04,
+	0x00, 0x00, 0xff, 0xff, 0x3a, 0x71, 0x57, 0x70, 0x28, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -388,12 +433,15 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BookingServiceClient interface {
 	CreateBooking(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingResponse, error)
-	GetUserBookings(ctx context.Context, in *User, opts ...grpc.CallOption) (*BookingsResponse, error)
+	GetUserBookings(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingsResponse, error)
+	// //can update user details only
+	// rpc UpdateBooking(User) returns (BookingResponse) {}
+	// rpc DeleteBookings(User) returns (BookingResponse) {}
 	//Returns bookings for both sections
-	GetSectionBookings(ctx context.Context, in *Sections, opts ...grpc.CallOption) (*BookingsResponse, error)
+	GetSectionBookings(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingsResponse, error)
 	//can update user details only
-	UpdateBooking(ctx context.Context, in *User, opts ...grpc.CallOption) (*BookingResponse, error)
-	DeleteBookings(ctx context.Context, in *User, opts ...grpc.CallOption) (*BookingResponse, error)
+	UpdateBooking(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingResponse, error)
+	DeleteBookings(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingResponse, error)
 }
 
 type bookingServiceClient struct {
@@ -413,7 +461,7 @@ func (c *bookingServiceClient) CreateBooking(ctx context.Context, in *BookingReq
 	return out, nil
 }
 
-func (c *bookingServiceClient) GetUserBookings(ctx context.Context, in *User, opts ...grpc.CallOption) (*BookingsResponse, error) {
+func (c *bookingServiceClient) GetUserBookings(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingsResponse, error) {
 	out := new(BookingsResponse)
 	err := c.cc.Invoke(ctx, "/Booking.BookingService/GetUserBookings", in, out, opts...)
 	if err != nil {
@@ -422,7 +470,7 @@ func (c *bookingServiceClient) GetUserBookings(ctx context.Context, in *User, op
 	return out, nil
 }
 
-func (c *bookingServiceClient) GetSectionBookings(ctx context.Context, in *Sections, opts ...grpc.CallOption) (*BookingsResponse, error) {
+func (c *bookingServiceClient) GetSectionBookings(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingsResponse, error) {
 	out := new(BookingsResponse)
 	err := c.cc.Invoke(ctx, "/Booking.BookingService/GetSectionBookings", in, out, opts...)
 	if err != nil {
@@ -431,7 +479,7 @@ func (c *bookingServiceClient) GetSectionBookings(ctx context.Context, in *Secti
 	return out, nil
 }
 
-func (c *bookingServiceClient) UpdateBooking(ctx context.Context, in *User, opts ...grpc.CallOption) (*BookingResponse, error) {
+func (c *bookingServiceClient) UpdateBooking(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingResponse, error) {
 	out := new(BookingResponse)
 	err := c.cc.Invoke(ctx, "/Booking.BookingService/UpdateBooking", in, out, opts...)
 	if err != nil {
@@ -440,7 +488,7 @@ func (c *bookingServiceClient) UpdateBooking(ctx context.Context, in *User, opts
 	return out, nil
 }
 
-func (c *bookingServiceClient) DeleteBookings(ctx context.Context, in *User, opts ...grpc.CallOption) (*BookingResponse, error) {
+func (c *bookingServiceClient) DeleteBookings(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*BookingResponse, error) {
 	out := new(BookingResponse)
 	err := c.cc.Invoke(ctx, "/Booking.BookingService/DeleteBookings", in, out, opts...)
 	if err != nil {
@@ -452,12 +500,15 @@ func (c *bookingServiceClient) DeleteBookings(ctx context.Context, in *User, opt
 // BookingServiceServer is the server API for BookingService service.
 type BookingServiceServer interface {
 	CreateBooking(context.Context, *BookingRequest) (*BookingResponse, error)
-	GetUserBookings(context.Context, *User) (*BookingsResponse, error)
+	GetUserBookings(context.Context, *BookingRequest) (*BookingsResponse, error)
+	// //can update user details only
+	// rpc UpdateBooking(User) returns (BookingResponse) {}
+	// rpc DeleteBookings(User) returns (BookingResponse) {}
 	//Returns bookings for both sections
-	GetSectionBookings(context.Context, *Sections) (*BookingsResponse, error)
+	GetSectionBookings(context.Context, *BookingRequest) (*BookingsResponse, error)
 	//can update user details only
-	UpdateBooking(context.Context, *User) (*BookingResponse, error)
-	DeleteBookings(context.Context, *User) (*BookingResponse, error)
+	UpdateBooking(context.Context, *BookingRequest) (*BookingResponse, error)
+	DeleteBookings(context.Context, *BookingRequest) (*BookingResponse, error)
 }
 
 // UnimplementedBookingServiceServer can be embedded to have forward compatible implementations.
@@ -467,16 +518,16 @@ type UnimplementedBookingServiceServer struct {
 func (*UnimplementedBookingServiceServer) CreateBooking(ctx context.Context, req *BookingRequest) (*BookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBooking not implemented")
 }
-func (*UnimplementedBookingServiceServer) GetUserBookings(ctx context.Context, req *User) (*BookingsResponse, error) {
+func (*UnimplementedBookingServiceServer) GetUserBookings(ctx context.Context, req *BookingRequest) (*BookingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserBookings not implemented")
 }
-func (*UnimplementedBookingServiceServer) GetSectionBookings(ctx context.Context, req *Sections) (*BookingsResponse, error) {
+func (*UnimplementedBookingServiceServer) GetSectionBookings(ctx context.Context, req *BookingRequest) (*BookingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSectionBookings not implemented")
 }
-func (*UnimplementedBookingServiceServer) UpdateBooking(ctx context.Context, req *User) (*BookingResponse, error) {
+func (*UnimplementedBookingServiceServer) UpdateBooking(ctx context.Context, req *BookingRequest) (*BookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateBooking not implemented")
 }
-func (*UnimplementedBookingServiceServer) DeleteBookings(ctx context.Context, req *User) (*BookingResponse, error) {
+func (*UnimplementedBookingServiceServer) DeleteBookings(ctx context.Context, req *BookingRequest) (*BookingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBookings not implemented")
 }
 
@@ -503,7 +554,7 @@ func _BookingService_CreateBooking_Handler(srv interface{}, ctx context.Context,
 }
 
 func _BookingService_GetUserBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
+	in := new(BookingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -515,13 +566,13 @@ func _BookingService_GetUserBookings_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/Booking.BookingService/GetUserBookings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookingServiceServer).GetUserBookings(ctx, req.(*User))
+		return srv.(BookingServiceServer).GetUserBookings(ctx, req.(*BookingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BookingService_GetSectionBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Sections)
+	in := new(BookingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -533,13 +584,13 @@ func _BookingService_GetSectionBookings_Handler(srv interface{}, ctx context.Con
 		FullMethod: "/Booking.BookingService/GetSectionBookings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookingServiceServer).GetSectionBookings(ctx, req.(*Sections))
+		return srv.(BookingServiceServer).GetSectionBookings(ctx, req.(*BookingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BookingService_UpdateBooking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
+	in := new(BookingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -551,13 +602,13 @@ func _BookingService_UpdateBooking_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/Booking.BookingService/UpdateBooking",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookingServiceServer).UpdateBooking(ctx, req.(*User))
+		return srv.(BookingServiceServer).UpdateBooking(ctx, req.(*BookingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BookingService_DeleteBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
+	in := new(BookingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -569,7 +620,7 @@ func _BookingService_DeleteBookings_Handler(srv interface{}, ctx context.Context
 		FullMethod: "/Booking.BookingService/DeleteBookings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookingServiceServer).DeleteBookings(ctx, req.(*User))
+		return srv.(BookingServiceServer).DeleteBookings(ctx, req.(*BookingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
