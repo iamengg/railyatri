@@ -5,25 +5,22 @@ package Booking;
 option go_package = ".;Booking";
 
 service BookingService {
+    // returns pair of bookingId, seatNum
     rpc CreateBooking(BookingRequest) returns (BookingResponse) {}
-    rpc GetUserBookings(BookingRequest) returns (BookingsResponse) {}
-    
-    // //Returns bookings for both sections
-    // rpc GetSectionBookings(Sections) returns (BookingsResponse) {}
-    
-    // //can update user details only 
-    // rpc UpdateBooking(User) returns (BookingResponse) {}
-    // rpc DeleteBookings(User) returns (BookingResponse) {}
-      //Returns bookings for both sections
-      rpc GetSectionBookings(BookingRequest) returns (BookingsResponse) {}
-    
-      //can update user details only 
-      rpc UpdateBooking(BookingRequest) returns (BookingResponse) {}
-      rpc DeleteBookings(BookingRequest) returns (BookingResponse) {}
+
+    // returns array of pairs{ bookingId, seatNum}
+    rpc GetUserBookings(BookingRequest) returns ( BookingsResponse) {}  
+
+    // returns array of pairs{ bookingId, seatNum}
+    rpc GetSectionBookings(BookingRequest) returns (BookingsResponse) {}
+
+    //can update user details only 
+    rpc UpdateBooking(BookingRequest) returns (BookingResponse) {}
+    rpc DeleteBookings(DeleteBookingRequest) returns (DeleteBookingResponse) {}
 }
 
 enum Section {
-    A  = 0;
+    A = 0;
     B = 1;
 }
 
@@ -45,19 +42,13 @@ message Travel{
     double cost = 3;
 }
 
-
-
-//1, "1234", "London","Berlin",time.Date(),0
-message BookingRequest {        
-    // User user = 1; 
-    // Travel travel = 2;   
+message BookingRequest {    
     int64 UserId  =1;
     int32 TrainNum = 2;
     string SourceStation = 3;
     string DestinationStation=4;
     string date = 5;
-    Sections section = 6;
-    
+    Sections section = 6;    
 }
 
 message BookingResponse {
@@ -69,3 +60,11 @@ message BookingsResponse{
     repeated BookingResponse bookings = 1;
 }
 
+message DeleteBookingRequest{
+    int64 uesrId = 1;
+    int64 bookingId = 2;
+}
+
+message DeleteBookingResponse{
+    bool success = 1;
+}

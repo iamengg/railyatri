@@ -19,7 +19,6 @@ const (
 // starts listning at GRPC port
 func setupGRPC() {
 	log.Println("Info: ", "GRPC started at ", GRPCPORT)
-
 	// Initialise TCP listener.
 	lis, err := net.Listen("tcp", GRPCPORT)
 	if err != nil {

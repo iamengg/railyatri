@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	Booking "github.com/iamengg/railyatri/bookingStub"
 	_ "github.com/iamengg/railyatri/bookingStub"
 
 	//"github.com/iamengg/railyatri/server/model"
@@ -33,6 +34,10 @@ func init() {
 
 // Add userBookings to track all bookings of usre with quick access
 func AddUserBooking(userID int, bookingId model.BookingId) {
+	if bookingId == -1 {
+		return
+	}
+
 	bookings, exist := UserBookingsDB.UserBookingsData[userID]
 	if !exist {
 		bookings = make(map[model.BookingId]struct{})
@@ -57,11 +62,11 @@ func GetAvailableTrains(srcStation, destinationStation string, date string) []in
 
 // Create new booking based on availability
 // Here we are using only confirmed or notConfirmed status , we are not using waitlist or RAC
-func CreateBooking(UserId int64, TrainNum int32, SourceStation string, DestinationStation string,
+func CreateBooking(UserId int64, SourceStation string, DestinationStation string,
 	Section int, Date string) (model.BookingId, model.SeatNumber, error) {
 
 	//check if user is existing
-	log.Println("Section is ", Section)
+	//log.Println("Section is ", Section)
 
 	if !IsUserExist(UserId) {
 		err := errors.New("user is not existing, Create it first before booking")
@@ -80,18 +85,24 @@ func CreateBooking(UserId int64, TrainNum int32, SourceStation string, Destinati
 	var NxtAvailableSeat int
 	var totalSeats int
 	var bogiLen int
-
+	var TrainNum int64
+	var seatFound bool
 	//check if seat with expected section is available at train
 	//if not return relavant error message
-	for _, TrainNum := range trainsRunningOnDate {
+	for _, TrainNum = range trainsRunningOnDate {
 
 		//for trian number & date key check how many seats allocated in specific section of booking
 		//get total seats present at that train for requested section
 		//compare with vacant with present seats
 		//if yes then get next vacant seat
 		//update booked seats count
-		sections := BookingData.BookingsData[Date+"_"+fmt.Sprintf("%v", TrainNum)]
-		actualSeatsInSection, _ := model.TrainObj[int(TrainNum)]
+		sections, exist := BookingData.BookingsData[Date+"_"+fmt.Sprintf("%v", TrainNum)]
+		if !exist {
+			//this train is totally empty for current date
+			NxtAvailableSeat = 1
+			break
+		}
+		actualSeatsInSection := model.TrainObj[int(TrainNum)]
 		totalSeats = 0
 		for section, bogies := range actualSeatsInSection.Bogies {
 			if section == Section {
@@ -117,11 +128,15 @@ func CreateBooking(UserId int64, TrainNum int32, SourceStation string, Destinati
 			bogiLen = len(bogieSeats)
 			if bogiLen < totalSeats {
 				log.Println("Total seats are ", totalSeats, " currently allocated are ", bogiLen)
-				NxtAvailableSeat = bogiLen + 1
+				NxtAvailableSeat = bogiLen
+				seatFound = true
 				break
 			} else {
 				return -1, -1, errors.New("no seats availalbe to book")
 			}
+		}
+		if seatFound {
+			break
 		}
 	}
 
@@ -131,11 +146,14 @@ func CreateBooking(UserId int64, TrainNum int32, SourceStation string, Destinati
 	receipt := model.UserBookingDetails{
 		BookingId:        bookingId,
 		UserId:           int(UserId),
-		SeatNum:          NxtAvailableSeat,
-		CoachType:        int(Section),
+		SeatNum:          NxtAvailableSeat + 1,
+		TrainNumber:      int(TrainNum),
+		Section:          Booking.Section(Section),
 		Status:           model.CONFIRMED,
 		BookingDateTime:  time.Now().String(),
 		ModifiedDateTime: "",
+		SrcStation:       SourceStation,
+		DestStation:      DestinationStation,
 	}
 	if !exist {
 		BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)] = map[string][]model.UserBookingDetails{
@@ -149,35 +167,47 @@ func CreateBooking(UserId int64, TrainNum int32, SourceStation string, Destinati
 	}
 	BookingIdBookingDetail[model.BookingId(bookingId)] = receipt
 	AddUserBooking(int(UserId), model.BookingId(bookingId))
-	log.Println("Created booking at Database")
+	//log.Println("Created booking at Database")
 	return model.BookingId(bookingId), model.SeatNumber(NxtAvailableSeat), nil
 }
 
 func GetUserBookings(UserId int64, TrainNum int32, SourceStation string, DestinationStation string,
-	Section int, Date string) ([]model.Response, error) {
+	Section int, Date string) (*Booking.BookingsResponse, error) {
 
 	// validate if userId exist
 	if !IsUserExist(UserId) {
 		err := errors.New("user is not existing, Create it first before booking ")
 		log.Println(err, UserId)
-		return []model.Response{}, err
+		return &Booking.BookingsResponse{}, err
 	}
 	//check for bookings
 	bookings := UserBookingsDB.UserBookingsData[int(UserId)]
 
-	userBookigs := make([]model.Response, 0, 5)
+	userBookigs := make([]*Booking.BookingResponse, 0, 5)
 	//make []pair{bookigId, seatnumber}
 	for bookingIdNumbers, _ := range bookings {
 		receipt, exist := BookingIdBookingDetail[model.BookingId(bookingIdNumbers)]
 		if !exist {
 			continue
 		}
-		userBookigs = append(userBookigs, model.Response{
-			BookingId:  model.BookingId(bookingIdNumbers),
-			SeatNumber: model.SeatNumber(receipt.SeatNum)})
+		userBookigs = append(userBookigs, &Booking.BookingResponse{
+			BookingId:  int64(bookingIdNumbers),
+			SeatNumber: int32(receipt.SeatNum)})
 
 	}
-	return userBookigs, nil
+	//return userBookigs, nil
+	return &Booking.BookingsResponse{
+		Bookings: userBookigs,
+	}, nil
+}
+
+// Get booking receipt for bookingId
+func GetBookingReceipt(bookingId int64) model.UserBookingDetails {
+	receipt, exist := BookingIdBookingDetail[model.BookingId(bookingId)]
+	if !exist {
+		return model.UserBookingDetails{}
+	}
+	return receipt
 }
 
 // create timestamp based unique booking id, here we are using lock so
@@ -196,47 +226,52 @@ func IsUserExist(userId int64) bool {
 }
 
 func GetSectionBookings(UserId int64, TrainNum int32, SourceStation string, DestinationStation string,
-	Section int, Date string) ([]model.Response, error) {
+	Section int, Date string) (*Booking.BookingsResponse, error) {
 
 	bookings := BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)]
 	sectionWiseBookings, exist := bookings[fmt.Sprintf("%d", Section)]
 	if !exist {
-		return []model.Response{}, errors.New("Section not having any bookings")
+		return &Booking.BookingsResponse{}, errors.New("section not having any bookings")
 	}
 
-	sectionBookigs := make([]model.Response, 0, 5)
+	sectionBookigs := make([]*Booking.BookingResponse, 0)
 
+	//	sectionBookigs. = make([]Booking.BookingResponse,0)
 	for _, receipt := range sectionWiseBookings {
-		sectionBookigs = append(sectionBookigs, model.Response{
-			BookingId:  model.BookingId(receipt.BookingId),
-			SeatNumber: model.SeatNumber(receipt.SeatNum)})
-
+		sectionBookigs = append(sectionBookigs, &Booking.BookingResponse{
+			BookingId:  int64(receipt.BookingId),
+			SeatNumber: int32(receipt.SeatNum)})
 	}
-	return sectionBookigs, nil
+
+	return &Booking.BookingsResponse{
+		Bookings: sectionBookigs,
+	}, nil
 }
 
 // TODO :  pass bookingId
-func DeleteUserBookings(UserId int64, TrainNum int32, SourceStation string, DestinationStation string,
-	Section int, Date string) error {
-	bookingId := 123 // pass this thr input
+func DeleteUserBookings(userId int64, bookingId int64) error {
+
 	//validate if userId exist
-	if !IsUserExist(UserId) {
-		err := errors.New("User is not existing, Create it first before booking ")
-		log.Println(err, UserId)
+	if !IsUserExist(userId) {
+		err := errors.New("user is not existing, Create it first before booking ")
+		log.Println(err, userId)
 		return err
 	}
+	receipt := GetBookingReceipt(bookingId)
+	deleteUserBooking(receipt.UserId, receipt.BookingId)
 
-	deleteUserBooking(int(UserId), bookingId)
 	deleteFromMapping(model.BookingId(bookingId))
-	deleteFromMainDB()
+	deleteFromMainDB(receipt.BookingDateTime, receipt.TrainNumber, receipt.Section, receipt.UserId, receipt.BookingId)
 	return nil
 }
 
-func deleteUserBooking(userId int, bookingId int) {
+func deleteUserBooking(userId int, bookingId int64) {
 	userBookings, exist := UserBookingsDB.UserBookingsData[userId]
 	if !exist {
+		//bookingId is wrong
 		return
 	}
+
 	delete(userBookings, model.BookingId(bookingId))
 	UserBookingsDB.UserBookingsData[userId] = userBookings
 }
@@ -245,8 +280,25 @@ func deleteFromMapping(bookingId model.BookingId) {
 	delete(BookingIdBookingDetail, bookingId)
 }
 
-func deleteFromMainDB() {
-	//BookingData.BookingsData
+func deleteElement(data []model.UserBookingDetails, index int) []model.UserBookingDetails {
+	return append(data[:index], data[index+1:]...)
+}
+
+// TODO
+func deleteFromMainDB(date string, trainNum int, sectionToDel Booking.Section, userId int, bookingId int64) {
+	// sections, ok := BookingData.BookingsData[date+"_"+fmt.Sprintf("%d", trainNum)]
+	// if !ok {
+	// 	return
+	// }
+	// for section, data := range sections {
+	// 	if section == int(sectionToDel) {
+	// 		for index, userBooking := range data {
+	// 			if userBooking.BookingId == bookingId {
+	// 				data = deleteElement(data, index)
+	// 			}
+	// 		}
+	// 	}
+	// }
 	log.Fatal("deleteFromMainDB Not implemented")
 }
 

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	. "github.com/iamengg/railyatri/bookingStub"
+	Booking "github.com/iamengg/railyatri/bookingStub"
 	db "github.com/iamengg/railyatri/server/database"
 )
 
@@ -16,25 +17,25 @@ func NewBookingServerHandler() *BookingHandler {
 
 func (b *BookingHandler) CreateBooking(c context.Context, r *BookingRequest) (*BookingResponse, error) {
 	log.Println("CreateBooking Request is ", r)
-	bookingId, SeatNum, err := db.CreateBooking(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+	bookingId, SeatNum, err := db.CreateBooking(r.UserId, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 
 	return &BookingResponse{BookingId: int64(bookingId), SeatNumber: int32(SeatNum)}, err
 }
 
 // return []{bookingIds, seatNumber for bookingId}
-func (b *BookingHandler) GetUserBookings(c context.Context, r *BookingRequest) (*BookingsResponse, error) {
+func (b *BookingHandler) GetUserBookings(c context.Context, r *BookingRequest) (*Booking.BookingsResponse, error) {
 	bookingIdSeatNumbers, err := db.GetUserBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Println(err.Error())
 		return nil, err
 	}
 	log.Println(bookingIdSeatNumbers)
-	return nil, nil
+	return bookingIdSeatNumbers, nil
 }
 
 // Returns bookings for both sections
-func (b *BookingHandler) GetSectionBookings(c context.Context, r *BookingRequest) (*BookingsResponse, error) {
-	log.Println("Handler GetSectionBookings")
+func (b *BookingHandler) GetSectionBookings(c context.Context, r *BookingRequest) (*Booking.BookingsResponse, error) {
+	log.Printf("Handler GetSectionBookings for %d-%s-%s", r.TrainNum, r.Date, r.Section)
 
 	bookingIdSeatNumbers, err := db.GetSectionBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 	if err != nil {
@@ -43,19 +44,19 @@ func (b *BookingHandler) GetSectionBookings(c context.Context, r *BookingRequest
 	}
 	log.Println(bookingIdSeatNumbers)
 
-	return nil, nil
+	return bookingIdSeatNumbers, nil
 }
 
 // Delete users booking for Date, from given source to destination
-func (b *BookingHandler) DeleteBookings(c context.Context, r *BookingRequest) (*BookingResponse, error) {
+func (b *BookingHandler) DeleteBookings(c context.Context, r *DeleteBookingRequest) (*DeleteBookingResponse, error) {
 
-	err := db.DeleteUserBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+	err := db.DeleteUserBookings(r.UesrId, r.BookingId)
 	if err != nil {
 		log.Printf(err.Error())
 		return nil, err
 	}
 
-	return nil, nil
+	return &DeleteBookingResponse{Success: true}, nil
 }
 
 // can update user details only

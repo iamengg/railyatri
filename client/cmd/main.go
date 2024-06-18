@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"time"
 
 	booking "github.com/iamengg/railyatri/bookingStub"
 	"github.com/iamengg/railyatri/server/model"
+	util "github.com/iamengg/railyatri/util"
 
 	//handler "railyatri/server/api/handlers"
 
@@ -36,7 +35,6 @@ func CreateBooking(UserId int, SourceStation string, DestinationStation string, 
 	client := booking.NewBookingServiceClient(conn)
 	name, err := client.CreateBooking(context.Background(),
 		&booking.BookingRequest{UserId: int64(UserId),
-			TrainNum:           1234,
 			SourceStation:      SourceStation,
 			DestinationStation: DestinationStation,
 			Date:               Date,
@@ -56,7 +54,6 @@ func GetUserBooking(UserId int, SourceStation string, DestinationStation string,
 	client := booking.NewBookingServiceClient(conn)
 	name, err := client.GetUserBookings(context.Background(),
 		&booking.BookingRequest{UserId: int64(UserId),
-			TrainNum:           1234,
 			SourceStation:      SourceStation,
 			DestinationStation: DestinationStation,
 			Date:               Date,
@@ -72,10 +69,11 @@ func GetUserBooking(UserId int, SourceStation string, DestinationStation string,
 }
 
 // GetSectionBooking returns all bookings at input train section for given data
-func GetSectionBooking(UserId int, SourceStation string, DestinationStation string, Date string, section booking.Section) {
+func GetSectionBooking(UserId int, trainNum int, SourceStation string, DestinationStation string, Date string, section booking.Section) {
 	client := booking.NewBookingServiceClient(conn)
 	name, err := client.GetSectionBookings(context.Background(),
-		&booking.BookingRequest{UserId: int64(UserId), TrainNum: 1234,
+		&booking.BookingRequest{UserId: int64(UserId),
+			TrainNum:           int32(trainNum),
 			SourceStation:      SourceStation,
 			DestinationStation: DestinationStation,
 			Date:               Date,
@@ -90,11 +88,10 @@ func GetSectionBooking(UserId int, SourceStation string, DestinationStation stri
 
 // ToDo : UpdateUserBooking updates userBooking
 func UpdateUserBooking(UserId int, SourceStation string, DestinationStation string, Date string, section booking.Section) {
-	
+
 	client := booking.NewBookingServiceClient(conn)
 	name, err := client.UpdateBooking(context.Background(),
 		&booking.BookingRequest{UserId: int64(UserId),
-			TrainNum:           1234,
 			SourceStation:      SourceStation,
 			DestinationStation: DestinationStation,
 			Date:               Date,
@@ -107,16 +104,13 @@ func UpdateUserBooking(UserId int, SourceStation string, DestinationStation stri
 }
 
 // ToDo : DeleteUserBooking deletes userBooking
-func DeleteUserBooking(UserId int, SourceStation string, DestinationStation string, Date string, section booking.Section) {
-	
+func DeleteUserBooking(UserId int, bookingId int64) {
+
 	client := booking.NewBookingServiceClient(conn)
 	name, err := client.DeleteBookings(context.Background(),
-		&booking.BookingRequest{UserId: int64(UserId),
-			TrainNum:           1234,
-			SourceStation:      SourceStation,
-			DestinationStation: DestinationStation,
-			Date:               Date,
-			Section:            &booking.Sections{Section: section},
+		&booking.DeleteBookingRequest{
+			UesrId:    int64(UserId),
+			BookingId: bookingId,
 		})
 
 	if err != nil {
@@ -128,32 +122,31 @@ func DeleteUserBooking(UserId int, SourceStation string, DestinationStation stri
 
 func main() {
 	defer conn.Close()
-	section := booking.Section_A
+	date := util.GetDate(5)
 
-	year, mon, day := time.Now().Date()
-	date := fmt.Sprintf("%v-%v-%v", year, int(mon), day)
-
-	for i := 1; i < 5; i++ {
+	for i := 1; i < 20; i++ {
 		if i%2 == 0 {
-			CreateBooking(i, "London", "Paris", date, booking.Section(model.SectionB))
+			CreateBooking(i, "London", "Paris", date, booking.Section(booking.Section_A))
 		} else {
-			CreateBooking(i, "London", "Paris", date, booking.Section(model.SectionA))
+			CreateBooking(i, "London", "Paris", date, booking.Section(booking.Section_B))
 		}
 	}
 
 	// Get user bookings
-	GetUserBooking(1, "London", "Paris", date, section)
-	GetUserBooking(33, "London", "Paris", date, section)
+	GetUserBooking(1, "London", "Paris", date, booking.Section(booking.Section_A))
+	GetUserBooking(2, "London", "Paris", date, booking.Section(booking.Section_A))
+	GetUserBooking(3, "London", "Paris", date, booking.Section(booking.Section_B))
+	GetUserBooking(4, "London", "Paris", date, booking.Section(booking.Section_B))
 
 	// GetSectoin bookings
-	GetSectionBooking(1, "London", "Paris", date, booking.Section_B)
-	GetSectionBooking(1, "London", "Paris", date, booking.Section_A)
+	GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionB))
+	GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionA))
 
 	// update
-	UpdateUserBooking(1, "London", "Paris", date, booking.Section_A)
+	//UpdateUserBooking(1, "London", "Paris", date, booking.Section_A)
 
 	// Delete
-	DeleteUserBooking(1, "London", "Paris", date, booking.Section_A)
+	DeleteUserBooking(1, 123456789)
 }
 
 // userID, trainName, src, dest, journeyDate, sectionType
