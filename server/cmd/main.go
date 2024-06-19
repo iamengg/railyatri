@@ -6,13 +6,14 @@ import (
 
 	booking "github.com/iamengg/railyatri/bookingStub"
 	handler "github.com/iamengg/railyatri/server/api"
+	config "github.com/iamengg/railyatri/config"
 
 	"google.golang.org/grpc"
 )
 
 const (
 	//GRPC port where grpc server listenes
-	GRPCPORT = ":50051"
+	GRPCPORT = config.GRPCPORT
 )
 
 // setupGRPC register handler for grpc apis &

@@ -5,16 +5,15 @@ import (
 	"log"
 
 	booking "github.com/iamengg/railyatri/bookingStub"
-	"github.com/iamengg/railyatri/server/model"
+	config "github.com/iamengg/railyatri/config"
+	_ "github.com/iamengg/railyatri/server/model"
 	util "github.com/iamengg/railyatri/util"
-
-	//handler "railyatri/server/api/handlers"
 
 	"google.golang.org/grpc"
 )
 
 const (
-	GRPCPORT = ":50051"
+	GRPCPORT = config.GRPCPORT
 )
 
 var conn *grpc.ClientConn
@@ -133,18 +132,18 @@ func main() {
 	}
 
 	// Get user bookings
-	GetUserBookingReceipts(1, "London", "Paris", date, booking.Section(booking.Section_A))
-	GetUserBookingReceipts(3, "London", "Paris", date, booking.Section(booking.Section_B))
+	//GetUserBookingReceipts(1, "London", "Paris", date, booking.Section(booking.Section_A))
+	//GetUserBookingReceipts(3, "London", "Paris", date, booking.Section(booking.Section_B))
 
 	// GetSectoin bookings
-	GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionB))
-	GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionA))
+	//GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionB))
+	//GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionA))
 
 	// update
 	//UpdateUserBooking(1, "London", "Paris", date, booking.Section_A)
 
 	// Delete
-	DeleteUserBooking(1, 1718772239483262598)
+	//DeleteUserBooking(1, 1718772239483262598)
 }
 
 // userID, trainName, src, dest, journeyDate, sectionType
