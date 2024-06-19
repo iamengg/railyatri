@@ -6,7 +6,7 @@ import (
 
 	booking "github.com/iamengg/railyatri/bookingStub"
 	handler "github.com/iamengg/railyatri/server/api"
-	config "github.com/iamengg/railyatri/config"
+	config "github.com/iamengg/railyatri/configs"
 
 	"google.golang.org/grpc"
 )

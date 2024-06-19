@@ -5,7 +5,7 @@ import (
 	"log"
 
 	booking "github.com/iamengg/railyatri/bookingStub"
-	config "github.com/iamengg/railyatri/config"
+	config "github.com/iamengg/railyatri/configs"
 	_ "github.com/iamengg/railyatri/server/model"
 	util "github.com/iamengg/railyatri/util"
 
