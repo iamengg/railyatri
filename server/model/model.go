@@ -1,7 +1,8 @@
 package model
 
 import (
-	Booking "github.com/iamengg/railyatri/bookingStub"
+	"log"
+
 	booking "github.com/iamengg/railyatri/bookingStub"
 )
 
@@ -11,7 +12,7 @@ var (
 	SectionB = 1
 
 	//fix seats per bogie
-	SeatsPerBogie = 5
+	SeatsPerBogie = 2
 
 	//Section A , Section B are two availalbe categories of bogies , ex: sleeper, general
 	SectionBogies = map[int]int{SectionA: 2, SectionB: 1}
@@ -130,7 +131,7 @@ type UserBookingDetails struct {
 	UserId           int             `json:"usrId"`
 	SeatNum          int             `json:"seatNum"`
 	TrainNumber      int             `json:"TrainNum"`
-	Section          Booking.Section `json:"BogiType"`
+	Section          booking.Section `json:"BogiType"`
 	Status           status          `json:"status"`
 	BookingDateTime  string          `json:"bookingDate"`
 	ModifiedDateTime string          `json:"modifiedDate"`
@@ -174,6 +175,22 @@ const (
 type Response struct {
 	BookingId  BookingId
 	SeatNumber SeatNumber
+}
+
+func GetSeatsAtSection(section int) int {
+	numOfBogiesPerSection, ok := SectionBogies[section]
+	if !ok {
+		log.Println("Not supported section value")
+	}
+	return numOfBogiesPerSection * SeatsPerBogie
+}
+
+func GetTotalSeats() int {
+	totalBogies := 0
+	for _, v := range SectionBogies {
+		totalBogies += v
+	}
+	return SeatsPerBogie * totalBogies
 }
 
 // -----------TODO ----------------------------------------------------------

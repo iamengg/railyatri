@@ -35,7 +35,7 @@ func (b *BookingHandler) GetUserBookings(c context.Context, r *BookingRequest) (
 
 // Returns bookings for both sections
 func (b *BookingHandler) GetSectionBookings(c context.Context, r *BookingRequest) (*Booking.BookingsResponse, error) {
-	log.Printf("Handler GetSectionBookings for %d-%s-%s", r.TrainNum, r.Date, r.Section)
+	log.Printf("Handler GetSectionBookings for %d-%s-%d", r.TrainNum, r.Date, r.Section)
 
 	bookingIdSeatNumbers, err := db.GetSectionBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 	if err != nil {

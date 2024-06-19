@@ -13,7 +13,6 @@ import (
 	Booking "github.com/iamengg/railyatri/bookingStub"
 	_ "github.com/iamengg/railyatri/bookingStub"
 
-	//"github.com/iamengg/railyatri/server/model"
 	model "github.com/iamengg/railyatri/server/model"
 )
 
@@ -127,7 +126,7 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 			//Get next available seatNum
 			bogiLen = len(bogieSeats)
 			if bogiLen < totalSeats {
-				log.Println("Total seats are ", totalSeats, " currently allocated are ", bogiLen)
+				log.Printf("At train num %d ,total seats at section %s are %d, currently allocated are %d", TrainNum, section, totalSeats, bogiLen)
 				NxtAvailableSeat = bogiLen
 				seatFound = true
 				break
