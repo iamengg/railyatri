@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	. "github.com/iamengg/railyatri/bookingStub"
@@ -23,19 +24,37 @@ func (b *BookingHandler) CreateBooking(c context.Context, r *BookingRequest) (*B
 }
 
 // return []{bookingIds, seatNumber for bookingId}
-func (b *BookingHandler) GetUserBookings(c context.Context, r *BookingRequest) (*Booking.BookingsResponse, error) {
-	bookingIdSeatNumbers, err := db.GetUserBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+// func (b *BookingHandler) GetUserBookings(c context.Context, r *BookingRequest) (*Booking.BookingsResponse, error) {
+// 	bookingIdSeatNumbers, err := db.GetUserBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 		return nil, err
+// 	}
+// 	log.Println(bookingIdSeatNumbers)
+
+// 	//Get all receipts of this users bookings
+// 	userReceipts := make([]model.UserBookingDetails, 0)
+// 	for _, bookingId := range bookingIdSeatNumbers.Bookings {
+// 		receipt := db.GetBookingReceipt(bookingId.BookingId)
+// 		userReceipts = append(userReceipts, receipt)
+// 	}
+// 	fmt.Println(userReceipts)
+// 	return bookingIdSeatNumbers, nil
+// }
+
+// return []{bookingIds, seatNumber for bookingId}
+func (b *BookingHandler) GetUserBookingReceipts(c context.Context, r *BookingRequest) (*Booking.BookingReceipts, error) {
+	userReceipts, err := db.GetUserBookingReceipts(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
-	log.Println(bookingIdSeatNumbers)
-	return bookingIdSeatNumbers, nil
+	return userReceipts, nil
 }
 
 // Returns bookings for both sections
 func (b *BookingHandler) GetSectionBookings(c context.Context, r *BookingRequest) (*Booking.BookingsResponse, error) {
-	log.Printf("Handler GetSectionBookings for %d-%s-%d", r.TrainNum, r.Date, r.Section)
+	log.Printf("Handler GetSectionBookings for %d-%s-%v", r.TrainNum, r.Date, fmt.Sprintf("%v", r.Section))
 
 	bookingIdSeatNumbers, err := db.GetSectionBookings(r.UserId, r.TrainNum, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 	if err != nil {

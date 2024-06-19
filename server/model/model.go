@@ -12,7 +12,7 @@ var (
 	SectionB = 1
 
 	//fix seats per bogie
-	SeatsPerBogie = 2
+	SeatsPerBogie = 10
 
 	//Section A , Section B are two availalbe categories of bogies , ex: sleeper, general
 	SectionBogies = map[int]int{SectionA: 2, SectionB: 1}
@@ -21,7 +21,7 @@ var (
 	Stations = map[string]struct{}{"London": struct{}{}, "Paris": struct{}{}, "Berlin": struct{}{}, "St.Petersberg": struct{}{}}
 
 	// Fare between source & destination stations
-	Fare = map[string]int{"London_Paris": 20, "Paris_Berlin": 30, "London_Berlin": 40}
+	Fare = map[string]float32{"London_Paris": 20, "Paris_Berlin": 30, "London_Berlin": 40}
 
 	// Registered Users, Non registered users first need to register to access RailYatri services
 	Users = map[int]booking.User{
@@ -127,16 +127,21 @@ type DaysForRunningTrain struct {
 
 // UserBookingDetails is final booking receipt, So contains all details related with booking
 type UserBookingDetails struct {
-	BookingId        int64           `json:"bookingId"`
-	UserId           int             `json:"usrId"`
-	SeatNum          int             `json:"seatNum"`
+	BookingId int64 `json:"BookingId"`
+	UserId    int   `json:"UsrId"`
+
+	SrcStation       string          `json:"From"`
+	DestStation      string          `json:"To"`
 	TrainNumber      int             `json:"TrainNum"`
+	SeatNum          int             `json:"SeatNum"`
+	Price            float32         `json:"Price"`
 	Section          booking.Section `json:"BogiType"`
-	Status           status          `json:"status"`
+	FirstName        string          `json:"FirstName"`
+	LastName         string          `json:"LastName"`
+	Email            string          `json:"Email"`
+	Status           status          `json:"TicketStatus"`
 	BookingDateTime  string          `json:"bookingDate"`
 	ModifiedDateTime string          `json:"modifiedDate"`
-	SrcStation       string          `json:"srcStation"`
-	DestStation      string          `json:"destStation"`
 }
 
 // DB to store bookings per train for each day
@@ -191,6 +196,14 @@ func GetTotalSeats() int {
 		totalBogies += v
 	}
 	return SeatsPerBogie * totalBogies
+}
+
+func GetFare(sourceStation, destinationStaion string) float32 {
+	fare, exist := Fare[sourceStation+"_"+destinationStaion]
+	if !exist {
+		return -1
+	}
+	return fare
 }
 
 // -----------TODO ----------------------------------------------------------

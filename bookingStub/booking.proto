@@ -9,7 +9,7 @@ service BookingService {
     rpc CreateBooking(BookingRequest) returns (BookingResponse) {}
 
     // returns array of pairs{ bookingId, seatNum}
-    rpc GetUserBookings(BookingRequest) returns ( BookingsResponse) {}  
+    rpc GetUserBookingReceipts(BookingRequest) returns ( BookingReceipts) {}  
 
     // returns array of pairs{ bookingId, seatNum}
     rpc GetSectionBookings(BookingRequest) returns (BookingsResponse) {}
@@ -67,4 +67,25 @@ message DeleteBookingRequest{
 
 message DeleteBookingResponse{
     bool success = 1;
+}
+
+message BookingReceipt{
+    int64  BookingId = 1;
+	int32 UserId    = 2;
+	string SrcStation = 3 ;
+	string DestStation  = 4 ;
+	int32 TrainNumber     = 5 ;
+	int32 SeatNum          = 6;
+	float      Price     = 7;
+	int32 Section      = 8 ;
+	string FirstName    = 9 ;
+	string LastName       = 10  ;
+	string Email           = 11 ;
+	string Status          = 12 ;
+    string BookingDateTime = 13  ;
+	string ModifiedDateTime = 14;
+}
+
+message BookingReceipts{
+    repeated BookingReceipt receipts = 1;
 }

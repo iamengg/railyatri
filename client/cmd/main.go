@@ -50,9 +50,9 @@ func CreateBooking(UserId int, SourceStation string, DestinationStation string, 
 }
 
 // GetUserBooking returns booking done by User for  given data & from source to destination station
-func GetUserBooking(UserId int, SourceStation string, DestinationStation string, Date string, section booking.Section) {
+func GetUserBookingReceipts(UserId int, SourceStation string, DestinationStation string, Date string, section booking.Section) {
 	client := booking.NewBookingServiceClient(conn)
-	name, err := client.GetUserBookings(context.Background(),
+	receipts, err := client.GetUserBookingReceipts(context.Background(),
 		&booking.BookingRequest{UserId: int64(UserId),
 			SourceStation:      SourceStation,
 			DestinationStation: DestinationStation,
@@ -65,7 +65,7 @@ func GetUserBooking(UserId int, SourceStation string, DestinationStation string,
 		return
 	}
 
-	log.Println("Info: GetUserBooking response ", name)
+	log.Println("Info: GetUserBooking response ", receipts)
 }
 
 // GetSectionBooking returns all bookings at input train section for given data
@@ -133,10 +133,8 @@ func main() {
 	}
 
 	// Get user bookings
-	GetUserBooking(1, "London", "Paris", date, booking.Section(booking.Section_A))
-	GetUserBooking(2, "London", "Paris", date, booking.Section(booking.Section_A))
-	GetUserBooking(3, "London", "Paris", date, booking.Section(booking.Section_B))
-	GetUserBooking(4, "London", "Paris", date, booking.Section(booking.Section_B))
+	GetUserBookingReceipts(1, "London", "Paris", date, booking.Section(booking.Section_A))
+	GetUserBookingReceipts(3, "London", "Paris", date, booking.Section(booking.Section_B))
 
 	// GetSectoin bookings
 	GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(model.SectionB))
@@ -146,7 +144,7 @@ func main() {
 	//UpdateUserBooking(1, "London", "Paris", date, booking.Section_A)
 
 	// Delete
-	DeleteUserBooking(1, 123456789)
+	DeleteUserBooking(1, 1718772239483262598)
 }
 
 // userID, trainName, src, dest, journeyDate, sectionType

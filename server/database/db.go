@@ -142,6 +142,7 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 	dateTrainNum, exist := BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)]
 	bookingKey := fmt.Sprintf("%v", Section)
 	bookingId := GetBookingId()
+	fare := model.GetFare(SourceStation, DestinationStation)
 	receipt := model.UserBookingDetails{
 		BookingId:        bookingId,
 		UserId:           int(UserId),
@@ -149,10 +150,14 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 		TrainNumber:      int(TrainNum),
 		Section:          Booking.Section(Section),
 		Status:           model.CONFIRMED,
+		Price:            fare,
 		BookingDateTime:  time.Now().String(),
 		ModifiedDateTime: "",
 		SrcStation:       SourceStation,
 		DestStation:      DestinationStation,
+		FirstName:        model.Users[int(UserId)].FirstName,
+		LastName:         model.Users[int(UserId)].LastName,
+		Email:            model.Users[int(UserId)].Email,
 	}
 	if !exist {
 		BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)] = map[string][]model.UserBookingDetails{
@@ -170,34 +175,58 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 	return model.BookingId(bookingId), model.SeatNumber(NxtAvailableSeat), nil
 }
 
-func GetUserBookings(UserId int64, TrainNum int32, SourceStation string, DestinationStation string,
-	Section int, Date string) (*Booking.BookingsResponse, error) {
+func GetUserBookingReceipts(UserId int64, TrainNum int32, SourceStation string, DestinationStation string,
+	Section int, Date string) (*Booking.BookingReceipts, error) {
 
 	// validate if userId exist
 	if !IsUserExist(UserId) {
 		err := errors.New("user is not existing, Create it first before booking ")
 		log.Println(err, UserId)
-		return &Booking.BookingsResponse{}, err
+		return &Booking.BookingReceipts{}, err
 	}
 	//check for bookings
 	bookings := UserBookingsDB.UserBookingsData[int(UserId)]
 
-	userBookigs := make([]*Booking.BookingResponse, 0, 5)
-	//make []pair{bookigId, seatnumber}
+	userBookigReceipts := make([]*Booking.BookingReceipt, 0, 5)
+
 	for bookingIdNumbers, _ := range bookings {
 		receipt, exist := BookingIdBookingDetail[model.BookingId(bookingIdNumbers)]
 		if !exist {
 			continue
 		}
-		userBookigs = append(userBookigs, &Booking.BookingResponse{
-			BookingId:  int64(bookingIdNumbers),
-			SeatNumber: int32(receipt.SeatNum)})
-
+		bookingReceipt := &Booking.BookingReceipt{
+			BookingId:       receipt.BookingId,
+			UserId:          int32(receipt.UserId),
+			SrcStation:      receipt.SrcStation,
+			DestStation:     receipt.DestStation,
+			TrainNumber:     int32(receipt.TrainNumber),
+			SeatNum:         int32(receipt.SeatNum),
+			Price:           receipt.Price,
+			Section:         int32(receipt.Section),
+			FirstName:       receipt.FirstName,
+			LastName:        receipt.LastName,
+			Email:           receipt.Email,
+			Status:          GetStatusString(int(receipt.Status)),
+			BookingDateTime: receipt.BookingDateTime,
+		}
+		userBookigReceipts = append(userBookigReceipts, bookingReceipt)
 	}
-	//return userBookigs, nil
-	return &Booking.BookingsResponse{
-		Bookings: userBookigs,
+	//return userBookigReceipts, nil
+	return &Booking.BookingReceipts{
+		Receipts: userBookigReceipts,
 	}, nil
+}
+
+func GetStatusString(status int) string {
+	switch status {
+	case 0:
+		return "CONFIRMED"
+	case 1:
+		return "NOTCONFIRMED"
+	case 2:
+		return "CANCELLED"
+	}
+	return "PENDING"
 }
 
 // Get booking receipt for bookingId
@@ -283,22 +312,22 @@ func deleteElement(data []model.UserBookingDetails, index int) []model.UserBooki
 	return append(data[:index], data[index+1:]...)
 }
 
-// TODO
+// TODO : testing delete from db
 func deleteFromMainDB(date string, trainNum int, sectionToDel Booking.Section, userId int, bookingId int64) {
-	// sections, ok := BookingData.BookingsData[date+"_"+fmt.Sprintf("%d", trainNum)]
-	// if !ok {
-	// 	return
-	// }
-	// for section, data := range sections {
-	// 	if section == int(sectionToDel) {
-	// 		for index, userBooking := range data {
-	// 			if userBooking.BookingId == bookingId {
-	// 				data = deleteElement(data, index)
-	// 			}
-	// 		}
-	// 	}
-	// }
-	log.Fatal("deleteFromMainDB Not implemented")
+	sections, ok := BookingData.BookingsData[date+"_"+fmt.Sprintf("%d", trainNum)]
+	if !ok {
+		return
+	}
+
+	for section, data := range sections {
+		if section == fmt.Sprintf("%v", sectionToDel) {
+			for index, userBooking := range data {
+				if userBooking.BookingId == bookingId {
+					data = deleteElement(data, index)
+				}
+			}
+		}
+	}	
 }
 
 // TODO : pass bookingId
