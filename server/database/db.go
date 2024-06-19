@@ -143,10 +143,11 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 	bookingKey := fmt.Sprintf("%v", Section)
 	bookingId := GetBookingId()
 	fare := model.GetFare(SourceStation, DestinationStation)
+	//NxtAvailableSeat++
 	receipt := model.UserBookingDetails{
 		BookingId:        bookingId,
 		UserId:           int(UserId),
-		SeatNum:          NxtAvailableSeat + 1,
+		SeatNum:          NxtAvailableSeat,
 		TrainNumber:      int(TrainNum),
 		Section:          Booking.Section(Section),
 		Status:           model.CONFIRMED,
@@ -163,12 +164,13 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 		BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)] = map[string][]model.UserBookingDetails{
 			bookingKey: []model.UserBookingDetails{receipt},
 		}
-	} else {
-		allBookingsAtSection := dateTrainNum[bookingKey]
-		allBookingsAtSection = append(allBookingsAtSection, receipt)
-		dateTrainNum[bookingKey] = allBookingsAtSection
-
+		dateTrainNum = BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)]
 	}
+
+	allBookingsAtSection := dateTrainNum[bookingKey]
+	allBookingsAtSection = append(allBookingsAtSection, receipt)
+	dateTrainNum[bookingKey] = allBookingsAtSection
+
 	BookingIdBookingDetail[model.BookingId(bookingId)] = receipt
 	AddUserBooking(int(UserId), model.BookingId(bookingId))
 	//log.Println("Created booking at Database")
@@ -327,7 +329,7 @@ func deleteFromMainDB(date string, trainNum int, sectionToDel Booking.Section, u
 				}
 			}
 		}
-	}	
+	}
 }
 
 // TODO : pass bookingId

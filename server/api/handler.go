@@ -17,7 +17,7 @@ func NewBookingServerHandler() *BookingHandler {
 }
 
 func (b *BookingHandler) CreateBooking(c context.Context, r *BookingRequest) (*BookingResponse, error) {
-	log.Println("CreateBooking Request is ", r)
+	log.Printf("CreateBooking Request is %v\n", r)
 	bookingId, SeatNum, err := db.CreateBooking(r.UserId, r.SourceStation, r.DestinationStation, int(r.Section.Section), r.Date)
 
 	return &BookingResponse{BookingId: int64(bookingId), SeatNumber: int32(SeatNum)}, err

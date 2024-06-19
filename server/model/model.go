@@ -172,7 +172,7 @@ type Journey struct {
 type status int
 
 const (
-	CONFIRMED status = iota + 1 // EnumIndex = 1
+	CONFIRMED status = iota 
 	NOTCONFIRMED
 	CANCELLED
 )
