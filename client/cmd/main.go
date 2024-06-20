@@ -126,7 +126,7 @@ func main() {
 
 	for i := 1; i < 5; i++ {
 		if i%2 == 0 {
-			CreateBooking(i, "London", "Paris", date, booking.Section(booking.Section_A))
+			CreateBooking(1, "London", "Paris", date, booking.Section(booking.Section_A))
 		} else {
 			CreateBooking(i, "London", "Paris", date, booking.Section(booking.Section_A))
 		}
@@ -144,7 +144,10 @@ func main() {
 	//UpdateUserBooking(1, "London", "Paris", date, booking.Section_A)
 
 	// Delete
-	//DeleteUserBooking(1, 1718772239483262598)
+	bkId := 1718783300964514040
+	DeleteUserBooking(1, int64(bkId))
+	log.Printf("Bookings aftr removing booking id bkId %d", bkId)
+	GetSectionBooking(1, 1234, "London", "Paris", date, booking.Section(booking.Section_A))
 }
 
 // userID, trainName, src, dest, journeyDate, sectionType

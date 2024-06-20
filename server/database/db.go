@@ -110,6 +110,12 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 			}
 		}
 
+		//if section which we looking to book is not available in trains booking means it's empty and available in full capacity
+		_, exist = sections[fmt.Sprintf("%d", Section)]
+		if !exist {
+			NxtAvailableSeat = 1
+			break
+		}
 		for section, bogieSeats := range sections {
 			log.Println("Total bookings in train ", TrainNum, " at section ", section, " are ", len(bogieSeats))
 			// Split string & get section
@@ -127,7 +133,7 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 			bogiLen = len(bogieSeats)
 			if bogiLen < totalSeats {
 				log.Printf("At train num %d ,total seats at section %s are %d, currently allocated are %d", TrainNum, section, totalSeats, bogiLen)
-				NxtAvailableSeat = bogiLen
+				NxtAvailableSeat = bogiLen + 1
 				seatFound = true
 				break
 			} else {
@@ -164,16 +170,16 @@ func CreateBooking(UserId int64, SourceStation string, DestinationStation string
 		BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)] = map[string][]model.UserBookingDetails{
 			bookingKey: []model.UserBookingDetails{receipt},
 		}
-		dateTrainNum = BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)]
+		//dateTrainNum = BookingData.BookingsData[Date+"_"+fmt.Sprintf("%d", TrainNum)]
+	} else {
+		allBookingsAtSection := dateTrainNum[bookingKey]
+		allBookingsAtSection = append(allBookingsAtSection, receipt)
+		dateTrainNum[bookingKey] = allBookingsAtSection
 	}
-
-	allBookingsAtSection := dateTrainNum[bookingKey]
-	allBookingsAtSection = append(allBookingsAtSection, receipt)
-	dateTrainNum[bookingKey] = allBookingsAtSection
 
 	BookingIdBookingDetail[model.BookingId(bookingId)] = receipt
 	AddUserBooking(int(UserId), model.BookingId(bookingId))
-	//log.Println("Created booking at Database")
+
 	return model.BookingId(bookingId), model.SeatNumber(NxtAvailableSeat), nil
 }
 
@@ -196,6 +202,10 @@ func GetUserBookingReceipts(UserId int64, TrainNum int32, SourceStation string, 
 		if !exist {
 			continue
 		}
+		if receipt.SrcStation != SourceStation || receipt.DestStation != DestinationStation {
+			//this is not booking which user looking for
+			continue
+		}
 		bookingReceipt := &Booking.BookingReceipt{
 			BookingId:       receipt.BookingId,
 			UserId:          int32(receipt.UserId),
@@ -213,6 +223,7 @@ func GetUserBookingReceipts(UserId int64, TrainNum int32, SourceStation string, 
 		}
 		userBookigReceipts = append(userBookigReceipts, bookingReceipt)
 	}
+
 	//return userBookigReceipts, nil
 	return &Booking.BookingReceipts{
 		Receipts: userBookigReceipts,
